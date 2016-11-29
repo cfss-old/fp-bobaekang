@@ -1,4 +1,9 @@
-# one script to rule them all
+##---------------------------------------------------------------##
+## This script creats the necessary directories to store key     ##
+## outputs of the project and runs all the scripts in order so   ##
+## that they download, transform, and analyse the data as well   ##
+## as visualize the analysis in a presentable format.            ##
+##---------------------------------------------------------------##
 
 ## clean out any previous work
 paths <- c("data", "graphics", "output")
@@ -10,6 +15,6 @@ for(path in paths){
 
 ## run my scripts
 source("fb-00_download-data.R")
-# source("01_filter-reorder-plot.R")
-# source("02_aggregate-plot.R")
-# rmarkdown::render("03_Divvy-report.Rmd", output_dir = "output")
+source("fb-01_tidy-data1.R")
+# rmarkdown::render("index.Rmd")
+# rmarkdown::render("about.Rmd")

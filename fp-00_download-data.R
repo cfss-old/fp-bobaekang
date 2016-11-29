@@ -19,3 +19,4 @@ for (zipfile in datazip){
   filepath = str_c("data/", zipfile)
   unzip(filepath, exdir = "data")
 }
+
