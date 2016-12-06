@@ -17,5 +17,5 @@ for(path in paths){
 source("fb-00_download-data.R")
 source("fb-01_tidy-data1.R")
 source("fb-02_tidy-data2.R")
-# rmarkdown::render("index.Rmd")
-# rmarkdown::render("about.Rmd")
+rmarkdown::render("index.Rmd")
+rmarkdown::render("about.Rmd")

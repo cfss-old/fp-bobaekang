@@ -1,19 +1,92 @@
 ---
 title: "Exploring Complementary Effects of Bike-Sharing System on Public Transit Ridership in Chicago"
 author: "Bobae Kang"
-output: html_document 
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
 ---
 
-```{r, echo = FALSE}
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 # load packages
 library(tidyverse)
 library(feather)
 library(ggmap)
 library(mapproj)
-library(modelr)
-library(broom)
+#library(modelr)
+#library(broom)
 
 # load data
-fromOutput <- read_feather("from_output.feather")
-toOutput <- read_feather("to_output.feather")
+DivvyData <- read_feather("data/Divvy_clean.feather")
+DivvyStation <- read_feather("data/Divvy_station.feather")
+CTAStops <- read_csv("data/stops.txt")
+fromOutput <- read_feather("data/from_output.feather")
+toOutput <- read_feather("data/to_output.feather")
+
+# chicago map
+ChicagoMap <- ggmap(
+  get_googlemap(
+    center = c(lon = -87.68, lat = 41.91),
+    zoom = 11)
+)
 ```
+
+### Exploratory visualizations
+As of November 13, 2016, there are total 525 Divvy Stations and 11,510 CTA stops in the greater Chicago area. It is, then, not difficult to expect that not all CTA stops are around Divvy Stations, and therefore being available for multi-modal trips between these two modes of transportation. The following map illustrates the locations of both Divvy stations (blue) and CTA stops (red). As expected, CTA covers a much larger area than Divvy; accordingly, many CTA stops are far from any Divvy stations. 
+  
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+ChicagoMap +
+  geom_point(data = DivvyStation,
+             aes(x = lon, y = lat),
+             alpha = .5,
+             size = 2,
+             color = "blue") +
+  geom_point(data = CTAStops,
+             aes(x = stop_lon, y = stop_lat),
+             alpha = .1,
+             size = 1,
+             color = "red") +
+  ggtitle("Locations of Divvy Stations and CTA Stops")
+```
+  
+How about the other way aroud? How many Divvy stations are in proximity with CTA stops, thereby making multi-modal trips likely? Here, I chose 50 meters, or approximately 165 feet, which is about a quarter of [a standard block (200 m)](https://en.wikipedia.org/wiki/City_block), as my proximity standard; This takes about 36 seconds to travel by [the average human walking speed](https://en.wikipedia.org/wiki/Walking). If a Divvy station has one CTA stop or more within 50 m distance, its `proximity` value is 1. Otherwise, the `proximity` value is 0. The following map illustrates the Divvy stations that are in proximity with CTA stops (`Proximity == 1`) and the others (`Proximity = 0`). There are total 295 Divvy stations in proximity with CTA stops and 240 stations that are not.  
+  
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+knitr::kable(count(DivvyStation, Proximity = proximity), align = 'l',
+             caption = 'Number of Divvy Stations, by Proximity (<=50m)')
+
+ChicagoMap +
+  geom_point(data = DivvyStation,
+             aes(x = lon, y = lat, color = as.character(proximity)),
+             alpha = .5,
+             size = 2,
+             ) +
+  labs(color = "Proximity") +
+  ggtitle("Divvy Stations, by Proximity (<=50m)")
+
+```
+
+Not all Divvy stations with `proximity == 1` are the same. Some stations are in proximity with only one CTA stop, and others are so with multiple CTA stops. On average, a Divvy station is in proximity with 2.18 CTA stops.    
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# map
+ChicagoMap +
+  geom_point(data = DivvyStation %>% filter(prox_num != 0),
+             aes(x = lon, y = lat, size = prox_num),
+             alpha = .5,
+             color = 'blue'
+             ) +
+  labs(size = "CTA stops in proximty") +
+  ggtitle("Divvy Stations, by the Number of CTA Stops in Proximity")
+
+# bar graph
+ggplot(data = count(DivvyStation %>% filter(prox_num != 0), stops_n = prox_num),
+       aes(x = stops_n, y = n)) +
+  geom_bar(stat = 'identity', aes(fill = stops_n), show.legend = FALSE) +
+  xlab("Number of CTA Stops in Proximity") +
+  ylab("Count") +
+  ggtitle("Divvy Stations, by the Number of CTA Stops in Proximity")
+```
+
+### Exploratory analysis
+Use models
