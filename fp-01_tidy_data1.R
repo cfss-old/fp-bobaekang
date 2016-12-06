@@ -52,9 +52,9 @@ distance_m <- distm(Divvy_m, CTA_m, fun = distHaversine) # a 535 by 11520 matrix
 
 distance50 <- distance_m <= 50 # check if the distance is <=50 meters or approximately 0.1 mile
 proximity50_1 <- (rowSums(distance50) > 0)*1 # binary; a Divvy station is <=50m from any CTA stop, 1; otherwise, 0 
-DivvyStation$proximity <- proximity50_1
+DivvyStation$proximity <- as.integer(proximity50_1)
 proximity50_2 <- rowSums(distance50) # non-binary; number of close CTA stops
-DivvyStation$prox_num <- proximity50_2
+DivvyStation$prox_num <- as.integer(proximity50_2)
 
 # Adding spatial (i.e., latitude and longitude) and proximity variables
 FromStation <- DivvyStation %>%
