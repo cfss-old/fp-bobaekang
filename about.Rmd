@@ -1,5 +1,19 @@
 ---
-title: "About This Website"
+title: "Exploring Complementary Effects of Bike-Sharing System on Public Transit Ridership in Chicago"
+author: "Bobae Kang"
+output: html_document 
 ---
 
-More about this website.
+```{r, echo = FALSE}
+# load packages
+library(tidyverse)
+library(feather)
+library(ggmap)
+library(mapproj)
+library(modelr)
+library(broom)
+
+# load data
+fromOutput <- read_feather("from_output.feather")
+toOutput <- read_feather("to_output.feather")
+```
