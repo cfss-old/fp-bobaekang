@@ -1,5 +1,23 @@
 ---
-title: "My Website"
+title: "Exploring Complementary Effects of Bike-Sharing System on Public Transit Ridership in Chicago"
+author: "Bobae Kang"
+output: html_document 
 ---
+***
+### Project Description 
+My project seeks to explore the complementary effect of bike-sharing system (BSS) on the public transit ridership in Chicago using, primarily, Divvy and Chicago Transit Authority (CTA) data. Divvy is the BSS local to the Chicago area and CTA provides public transportation in forms of buses and rails. Although the existing literature attests for the complementary role of BSS to the existing public transit system, few studies have conducted quantitative evaluation of the effect based on the data on actual trips made. The current project is my first step toward addressing this gap by piggybacking on another study on Divvy: [Faghih-Imani and Eluru’s “Analysing bicycle-sharing system user destination choice preferences: Chicago’s Divvy system” (2015)](http://www.sciencedirect.com/science/article/pii/S0966692315000459). Instead of simply updating the study with more recent data, my project seeks to develop measures that take a narrower focus on the relationship between Divvy uses and public transit uses.
 
-Hello, Website!
+```{r, echo = FALSE, out.width = "200px"}
+knitr::include_graphics("http://www.bradbice.com/wp-content/uploads/2014/06/Divvy-FB-blue.jpg")
+knitr::include_graphics("https://pbs.twimg.com/profile_images/1617237207/cta-logo---flattransp.png")
+```
+
+***
+
+### Data
+Divvy offers its per-trip dataset since its launching in 2013 freely on [its webpage](https://www.divvybikes.com/system-data). In the current project, which is meant to be exploratory, I take observations for only the first and second quarters of 2016. The number of trips made in this period of time amounts to **1,469,730** observations. For each trip, the dataset offers 1) trip start and end time, 2) trip start and end stations, 3) rider type (member or 24-hour pass user), and, if it is a member trip, 4) the member’s gender and year of birth. The Divvy webpage also offers a separate file specifying the geographic information on each station, i.e. its latitude and longitude. In addition, CTA offers a variety of data relevant to my study, including the timetables for bus routes and rail lines and the locations of all bus and rail stations. The link to CTA data is [here](http://www.transitchicago.com/downloads/sch_data/). When combined, these two sets of data allow me to approximate the availability of public transportation for all CTA bus and rail stations.
+
+***
+
+### Methodology
+Put simply, my project compare the trips that are likely made in connection with public transit uses (i.e., multi-modal) to the other trips that are not likely made in connection with public transit uses. More specifically, I first identify all Divvy stations that are located in reasonable proximity with public transit stops, i.e., that can be utilized as transit locations for multi-modal (Divvy to bus or rail, and vice versa) trips. Here, I chose 50 meters, or approximately 165 feet, which is about a quarter of [a standard block (200 m)](https://en.wikipedia.org/wiki/City_block), which takes about 36 seconds to travel by [the average human walking speed](https://en.wikipedia.org/wiki/Walking). Once these “close” stations are identified, I will identify the trips made to and from those stations. In doing so, I will distinguish between trips made close to the arrival of buses and/or trains (the “treatment” group) and all the other trips (the “control” group). For example, if a trip is made to a Divvy station A, which is close to a bus stop B, shortly before (e.g., 3 minutes) a bus is scheduled to come, this trip may be counted as a treatment group observation. However, if a trip is made to the same station, A, 3 minutes after a bus is scheduled to pass by B, this trip will be counted toward the “control” group, for it is less likely that such a trip would be intended as part of a multi-modal transportation.
