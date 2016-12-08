@@ -21,9 +21,9 @@ A brief explanation on each script files:
 
 * `fp-00_download-data.R` downloads data from Divvy and CTA webpages.
   
-* `fp-01_tidy_data1.R` combines Divvy and CTA data to add proximity variables (`from_prox`, `from_prox_num`, `to_prox` and `to_prox_num`).
+* `fp-01_tidy-data1.R` combines Divvy and CTA data to add proximity variables (`from_prox`, `from_prox_num`, `to_prox` and `to_prox_num`).
   
-* `fp-02_tidy_data2.R` combines Divvy and CTA data to add multi-modality variables (`multimode` and `multimode_num`)
+* `fp-02_tidy-data2.R` combines Divvy and CTA data to add multi-modality variables (`multimode` and `multimode_num`)
   
 * `home.Rmd` is to render a "Home" html page of the project's website
   
