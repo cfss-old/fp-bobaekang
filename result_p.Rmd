@@ -101,6 +101,7 @@ ChicagoMap +
 How many trips were made in the first two quarters to and from each Divvy stations? The following two maps show from and to which station all 1,469,740 Divvy trips.
   
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# from map
 ChicagoMap +
   geom_point(data = DivvyData %>%
                select(from_station_name, from_lat, from_lon) %>%
@@ -115,6 +116,7 @@ ChicagoMap +
   xlab("Longitude") +
   ylab("Latitude")
 
+# to map
 ChicagoMap +
   geom_point(data = DivvyData  %>%
                select(to_station_name, to_lat, to_lon) %>%
@@ -133,6 +135,7 @@ ChicagoMap +
 Now, what I am actually interested in are trips made from and to only those stations in proximity with CTA stops. Among all, total 814,200 trips were made from such stations and 818,542 trips were made to such stations. Compared with the previous maps, the pattern remains the same: more trips are made in the northern part of the town.
   
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# from map
 ChicagoMap +
   geom_point(data = DivvyData %>%
                filter(from_prox == 1) %>%
@@ -148,10 +151,13 @@ ChicagoMap +
   labs(size = "Number of trips") +
   xlab("Longitude") +
   ylab("Latitude")
+
+# print text
 print(str_c("The ",
             nrow(DivvyData %>% filter(from_prox == 1))/nrow(DivvyData)*100,
             "% of all Divvy trips are made from stations in proximity with one CTA stop or more."))
 
+# to map
 ChicagoMap +
   geom_point(data = DivvyData  %>%
                filter(to_prox == 1) %>%
@@ -167,6 +173,8 @@ ChicagoMap +
   labs(size = "Number of trips") +
   xlab("Longitude") +
   ylab("Latitude")
+
+# print text
 print(str_c("The ",
             nrow(DivvyData %>% filter(to_prox == 1))/nrow(DivvyData)*100,
             "% of all Divvy trips are made to stations in proximity with one CTA stop or more."))
