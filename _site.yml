@@ -4,9 +4,12 @@ navbar:
   title: "Bobae's Final Project"
   left:
     - text: "Home"
-      href: index.html
-    - text: "Result"
-      href: about.html
+      href: home.html
+    - text: "Result: Proximity"
+      href: result_p.html
+    - text: "Result: Multi-Modality"
+      href: result_m.html
+      
 output:
   html_document:
     theme: readable

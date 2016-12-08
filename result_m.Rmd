@@ -1,0 +1,85 @@
+---
+title: "Exploring Complementary Effects of Bike-Sharing System on Public Transit Ridership in Chicago"
+author: "Bobae Kang"
+date: 2016-12-08
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+---
+***
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# load packages
+library(tidyverse)
+library(feather)
+library(modelr)
+#library(ggmap)
+#library(mapproj)
+#library(stringr)
+#library(broom)
+
+# load data
+fromOutput <- read_feather("data/from_output.feather")
+toOutput <- read_feather("data/to_output.feather")
+```
+## Exploring Multi-Modality
+Here in this page, I explore the idea of multi-modality of individual Divvy trips. For these part, I have prepared two data frames, `fromOutput` and `toOutput`, each of which consists of a random sample of size 10000 drawn from the Divvy trips made from or to stations in proximity with CTA stops. The following two variables are relevant to this notion of multi-modality:
+  
+* `multimode`: this binary (0 or 1) variable marks whether the trip is potentially multi-modal, that is, either the trip starts <= 3 minutes after at least one CTA bus or rail departs at a nearby CTA stop or the trip stops <= 3 before at least one CTA bus or rail arrives at a nearby CTA stop.
+
+* `multimode_num`: this integer variable marks the number of CTA bus or rail that either depart or arrive at CTA stops in proximity with a Divvy station the trip start or stop within the windown of 3 minutes.    
+  
+The following shows the full structure of both `fromOutput` and `toOutput`:  
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+print("The structure of the `fromOutput` data frame")
+str(fromOutput)
+
+print("The structure of the `toOutput` data frame")
+str(toOutput)
+```
+  
+***
+### When Divvy Trips start at stations in proximity with CTA stops
+A simple table below compares between the number of Divvy trips made from stations in proximity with CTA stops that are potentially multi-modal and that are not.
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+knitr::kable(count(fromOutput, 'Potentially Multi-modal' = multimode), align = 'l',
+             caption = 'The Number of Divvy Trips that Starts in a Potentially Multi-modal Manner')
+```
+  
+It is notable that, among trips made from stations in proximity with CTA stop, almost 88 percent are potentially multi-modal, i.e., possibly made in connection with public transit uses.
+  
+The following graph compares the proportion of non-members (Customer) and members (Subscriber), for both trips that are potentially multi-modal trip and trips that are not. The graph suggests that, for trips that start at stations in proximity with CTA stops, the proportion of Customer trip is noticably grater for potentially multi-modal trips.
+  
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+ggplot(fromOutput) +
+  geom_bar(aes(as.character(multimode), fill = usertype)) +
+  ggtitle("The Proportion of Customer and Subscriber") +
+  labs(fill = "User type") +
+  xlab("Potential Multi-modality") +
+  ylab("Number of trips from stations in proximity with CTA stops") +
+  coord_flip()
+```
+  
+
+***
+### When Divvy Trips stop at stations in proximity with CTA stops
+A simple table below compares between the number of Divvy trips made to stations in proximity with CTA stops that are potentially multi-modal and that are not.  
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+knitr::kable(count(toOutput, 'Potentially Multi-modal' = multimode), align = 'l',
+             caption = 'The Number of Divvy Trips that Ends in a Potentially Multi-modal Manner')
+```
+  
+Similar to what we see above, among trips made to stations in proximity with CTA stop, over 88 percent are potentially multi-modal, i.e., possibly made in connection with public trasit uses.
+  
+The following graph compares the proportion of non-members (Customer) and members (Subscriber), for both trips that are potentially multi-modal trip and trips that are not. Again, for trips that stop at stations in proximity with CTA stops, the proportion of Customer trip is much greater for potentially multi-modal trips.
+  
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+ggplot(toOutput) +
+  geom_bar(aes(as.character(multimode), fill = usertype)) +
+  ggtitle("The Proportion of Customer and Subscriber") +
+  labs(fill = "User type") +
+  xlab("Potential Multi-modality") +
+  ylab("Number of trips to stations in proximity with CTA stops") +
+  coord_flip()
+```
+Again, 

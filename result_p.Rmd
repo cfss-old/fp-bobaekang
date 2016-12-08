@@ -1,0 +1,173 @@
+---
+title: "Exploring Complementary Effects of Bike-Sharing System on Public Transit Ridership in Chicago"
+author: "Bobae Kang"
+date: 2016-12-08
+output:
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+---
+***
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# load packages
+library(tidyverse)
+library(feather)
+library(ggmap)
+library(mapproj)
+library(stringr)
+
+# load data
+DivvyData <- read_feather("data/Divvy_clean.feather")
+DivvyStation <- read_feather("data/Divvy_station.feather")
+CTAStops <- read_csv("data/stops.txt")
+
+# chicago map
+ChicagoMap <- ggmap(
+  get_googlemap(
+    center = c(lon = -87.68, lat = 41.91),
+    zoom = 11)
+)
+```
+## Exploring Proximity
+Here in this page, I explore the idea of proximity of Divvy stations and CTA stops. For this project, a Divvy station is operationally defined as being in proximity with a CTA stop if the distance between the two is equal to or less than 50 meters. In the data frames I have prepared as part of this project, the following two variables are relevant to this notion of proximity:
+  
+* `from_prox` or `to_prox`: this binary (0 or 1) variable marks whether the trip is made from or to a station in proximity (less than 50 meters) with any CTA stop.
+
+* `from_prox_num` or `to_prox_num`: this integer variable marks how many CTA stops are in proximity with the station this trip is made from or to.
+
+
+***
+### Divvy Stations and CTA Stops
+As of November 13, 2016, there are total 525 Divvy Stations and 11,510 CTA stops in the greater Chicago area. It is, then, not difficult to expect that not all CTA stops are around Divvy Stations, and therefore being available for multi-modal trips between these two modes of transportation. The following map illustrates the locations of both Divvy stations (blue) and CTA stops (red). As expected, CTA covers a much larger area than Divvy; accordingly, many CTA stops are far from any Divvy stations. 
+  
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+ChicagoMap +
+  geom_point(data = DivvyStation,
+             aes(x = lon, y = lat),
+             alpha = .5,
+             size = 2,
+             color = "blue") +
+  geom_point(data = CTAStops,
+             aes(x = stop_lon, y = stop_lat),
+             alpha = .1,
+             size = 1,
+             color = "red") +
+  ggtitle("Locations of Divvy Stations and CTA Stops") +
+  xlab("Longitude") +
+  ylab("Latitude")
+```
+  
+How about the other way aroud? How many Divvy stations are in proximity with CTA stops, thereby making multi-modal trips likely? Here, I chose 50 meters, or approximately 165 feet, which is about a quarter of [a standard block (200 m)](https://en.wikipedia.org/wiki/City_block), as my proximity standard; This takes about 36 seconds to travel by [the average human walking speed](https://en.wikipedia.org/wiki/Walking). If a Divvy station has one CTA stop or more within 50 m distance, its `proximity` value is 1. Otherwise, the `proximity` value is 0. The following map illustrates the Divvy stations that are in proximity with CTA stops (`Proximity == 1`) and the others (`Proximity = 0`). There are total 295 Divvy stations in proximity with CTA stops and 240 stations that are not.  
+  
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# table
+knitr::kable(count(DivvyStation, Proximity = proximity), align = 'l',
+             caption = 'Number of Divvy Stations, by Proximity (<=50m)')
+
+# map
+ChicagoMap +
+  geom_point(data = DivvyStation,
+             aes(x = lon, y = lat, color = as.character(proximity)),
+             alpha = .5,
+             size = 2,
+             ) +
+  labs(color = "Proximity") +
+  ggtitle("Divvy Stations, by Proximity (<=50m)") +
+  xlab("Longitude") +
+  ylab("Latitude")
+
+```
+
+Not all Divvy stations with `proximity == 1` are the same. Some stations are in proximity with only one CTA stop, and others are so with multiple CTA stops. On average, a Divvy station is in proximity with 2.18 CTA stops.
+  
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+# table
+knitr::kable(count(DivvyStation %>% filter(prox_num != 0), 'Numer of CTA Stops' = prox_num), align = 'l',
+             caption = 'Divvy Stations, by the Number of CTA Stops in Proximity')
+# map
+ChicagoMap +
+  geom_point(data = DivvyStation %>% filter(prox_num != 0),
+             aes(x = lon, y = lat, size = prox_num),
+             alpha = .5,
+             color = 'blue'
+             ) +
+  labs(size = "CTA stops in proximty") +
+  ggtitle("Divvy Stations, by the Number of CTA Stops in Proximity") +
+  xlab("Longitude") +
+  ylab("Latitude")
+```
+
+### Divvy Trips, from and to
+How many trips were made in the first two quarters to and from each Divvy stations? The following two maps show from and to which station all 1,469,740 Divvy trips.
+  
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+ChicagoMap +
+  geom_point(data = DivvyData %>%
+               select(from_station_name, from_lat, from_lon) %>%
+               group_by(from_station_name) %>%
+               mutate(trip = n()) %>%
+               filter(!duplicated(from_station_name)),
+             aes(x = from_lon, y = from_lat, size = trip),
+             alpha = .3,
+             color = "red") +
+  ggtitle("From Which Stations Are Divvy Trips Made?") +
+  labs(size = "Number of trips") +
+  xlab("Longitude") +
+  ylab("Latitude")
+
+ChicagoMap +
+  geom_point(data = DivvyData  %>%
+               select(to_station_name, to_lat, to_lon) %>%
+               group_by(to_station_name) %>%
+               mutate(trip = n()) %>%
+               filter(!duplicated(to_station_name)),
+             aes(x = to_lon, y = to_lat, size = trip),
+             alpha = .3,
+             color = "blue") +
+  ggtitle("To Which Stations Are Divvy Trips Made?") +
+  labs(size = "Number of trips") + 
+  xlab("Longitude") +
+  ylab("Latitude")
+```
+  
+Now, what I am actually interested in are trips made from and to only those stations in proximity with CTA stops. Among all, total 814,200 trips were made from such stations and 818,542 trips were made to such stations. Compared with the previous maps, the pattern remains the same: more trips are made in the northern part of the town.
+  
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+ChicagoMap +
+  geom_point(data = DivvyData %>%
+               filter(from_prox == 1) %>%
+               select(from_station_name, from_lat, from_lon) %>%
+               group_by(from_station_name) %>%
+               mutate(trip = n()) %>%
+               filter(!duplicated(from_station_name)),
+             aes(x = from_lon, y = from_lat, size = trip),
+             alpha = .3,
+             color = "red") +
+  ggtitle("From Which Stations Are Divvy Trips Made?",
+          subtitle = "Stations in proximity with CTA stops only") +
+  labs(size = "Number of trips") +
+  xlab("Longitude") +
+  ylab("Latitude")
+print(str_c("The ",
+            nrow(DivvyData %>% filter(from_prox == 1))/nrow(DivvyData)*100,
+            "% of all Divvy trips are made from stations in proximity with one CTA stop or more."))
+
+ChicagoMap +
+  geom_point(data = DivvyData  %>%
+               filter(to_prox == 1) %>%
+               select(to_station_name, to_lat, to_lon) %>%
+               group_by(to_station_name) %>%
+               mutate(trip = n()) %>%
+               filter(!duplicated(to_station_name)),
+             aes(x = to_lon, y = to_lat, size = trip),
+             alpha = .3,
+             color = "blue") +
+  ggtitle("To Which Stations Are Divvy Trips Made?",
+          subtitle = "Stations in proximity with CTA stops only") +
+  labs(size = "Number of trips") +
+  xlab("Longitude") +
+  ylab("Latitude")
+print(str_c("The ",
+            nrow(DivvyData %>% filter(to_prox == 1))/nrow(DivvyData)*100,
+            "% of all Divvy trips are made to stations in proximity with one CTA stop or more."))
+```

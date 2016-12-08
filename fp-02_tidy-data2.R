@@ -16,7 +16,6 @@ DivvyData <- read_feather("data/Divvy_clean.feather")
 CTAStopTimeLocation <- read_feather("data/CTA_Stop_time_location.feather")
 DivvyCTAProx <- read_feather ("data/close_stops.feather")
 
-
 # Divvy trips that started at stations in proximity with CTA stops  
 DivvyData_from_prox <- DivvyData %>%
   select(-stoptime, -to_station_id, -to_station_name,-bikeid, -to_lon, -to_lat, -to_prox, -to_prox_num) %>%
@@ -41,14 +40,14 @@ Arrival <- left_join(DivvyCTAProx_yes, CTAStop_arr) %>% select(-name)
 colnames(Arrival) <- c('to_station_id', 'to_prox', 'to_prox_num', 'stop_id', 'stop_name', 'arrival_time')
 
 Departure <- left_join(DivvyCTAProx_yes, CTAStop_dep) %>% select(-name)
-colnames(Departure) <- c('from_station_id', 'fro_prox', 'from_prox_num', 'stop_id', 'stop_name', 'depart_time')
+colnames(Departure) <- c('from_station_id', 'from_prox', 'from_prox_num', 'stop_id', 'stop_name', 'depart_time')
 
 # define functions to add multi-modal variables: multimode and multimode_num 
 multiFromFunc <- function(fromInput){ # for trips that start in a potentially multi-modal manner
   data <- left_join(fromInput, Departure)
   stop <- as_date(data$starttime)
   dep <- ymd_hms(str_c(as_date(data$starttime), data$depart_time, sep = " "), tz = "America/Chicago")
-  data$close <- (3 >= abs(difftime(data$starttime, dep, tz = "America/Chicago", units = c("mins"))))*1
+  data$close <- (3 >= abs(difftime(dep, data$starttime, tz = "America/Chicago", units = c("mins"))))*1
   close_var <- data %>%
     group_by(trip_id) %>%
     summarise(multimode_num = sum(close == 1, na.rm = TRUE))
