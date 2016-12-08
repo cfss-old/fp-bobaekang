@@ -1,4 +1,9 @@
-# Download the raw data
+##---------------------------------------------------------------##
+## This script downloads raw data sets from Divvy and CTA that   ##
+## are necessary for the current project and used in the         ##
+## scripts that follow this.                                     ##
+##---------------------------------------------------------------##
+
 # Load library
 library(downloader)
 library(stringr)

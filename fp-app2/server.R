@@ -4,8 +4,6 @@ library(DT)
 library(tidyverse)
 library(stringr)
 library(feather)
-library(ggmap)
-library(mapproj)
 
 # Read the data
 toOutput <- read_feather("to_output.feather")
@@ -13,15 +11,7 @@ toOutput <- read_feather("to_output.feather")
 # add month variable, select only variables that matter here
 appInput <- toOutput %>%
   mutate(month = format(toOutput$stoptime, "%b")) %>%
-  select(usertype, month, multimode, to_station_name, to_lon, to_lat)
-
-# chicago map
-ChicagoMap <- ggmap(
-  get_googlemap(
-    center = c(lon = -87.68, lat = 41.91),
-    zoom = 11)
-)
-
+  select(usertype, gender, birthyear, month, multimode, tripduration)
 
 shinyServer(function(input, output) {
   filtered <- reactive({
@@ -56,18 +46,12 @@ shinyServer(function(input, output) {
   })
   
   output$coolplot <- renderPlot({
-    if (is.null(filtered())) {
-      ChicagoMap
-    }
-    ChicagoMap +
-      geom_point(data = filtered(),
-                 aes(x = to_lon, y = to_lat),
-                     color = 'blue',
-                     alpha = .3,
-                     size = 3) +
+    ggplot() +
+      geom_freqpoly(data = filtered(),
+                 aes(x = tripduration),
+                 color = "blue") +
       ggtitle("Search Result") +
-      xlab("Longitude") +
-      ylab("Latitude")
+      theme_bw()
   })
     
   output$downloadData <- downloadHandler(

@@ -86,10 +86,11 @@ DivvyStation$Divvyindex <- sequence(nrow(DivvyStation))
 CTAStops$CTAindex <- sequence(nrow(CTAStops))
 CTAindex <- CTAStops %>% select(stop_id, stop_name, CTAindex)
 
+# joining DivvyStation data with the indices created above
 DivvyCTAProx <- DivvyStation %>%
   left_join(index50) %>%
   left_join(CTAindex) %>%
-  select(id, name, proximity, prox_num, stop_id, stop_name)
+  select(id, name, proximity, prox_num, stop_id, stop_name) # select only the columns necessary
 
 # write the outcome into feather file and store
 write_feather(DivvyCTAProx, "data/close_stops.feather")

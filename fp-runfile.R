@@ -1,6 +1,6 @@
 ##---------------------------------------------------------------##
-## This script creats the necessary directories to store key     ##
-## outputs of the project and runs all the scripts in order so   ##
+## This script creats the necessary directory to store data for  ##
+## the current project and runs all the scripts in order so      ##
 ## that they download, transform, and analyse the data as well   ##
 ## as visualize the analysis in a presentable format.            ##
 ##---------------------------------------------------------------##
