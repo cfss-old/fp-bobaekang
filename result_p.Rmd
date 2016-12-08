@@ -13,7 +13,7 @@ output:
 library(tidyverse)
 library(feather)
 library(ggmap)
-library(mapproj)
+#library(mapproj)
 library(stringr)
 
 # load data

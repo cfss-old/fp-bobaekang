@@ -13,10 +13,6 @@ output:
 library(tidyverse)
 library(feather)
 library(modelr)
-#library(ggmap)
-#library(mapproj)
-#library(stringr)
-#library(broom)
 
 # load data
 fromOutput <- read_feather("data/from_output.feather")
