@@ -14,9 +14,9 @@ for(path in paths){
 }
 
 ## run my scripts
-source("fb-00_download-data.R")
-source("fb-01_tidy-data1.R")
-source("fb-02_tidy-data2.R")
+source("fp-00_download-data.R")
+source("fp-01_tidy-data1.R")
+source("fp-02_tidy-data2.R")
 rmarkdown::render("home.Rmd")
 rmarkdown::render("result_p.Rmd")
 rmarkdown::render("result_m.Rmd")
